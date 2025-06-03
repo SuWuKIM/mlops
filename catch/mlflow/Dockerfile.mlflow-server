@@ -1,0 +1,18 @@
+FROM python:3.9-slim
+
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements-mlflow-server.txt /app/requirements.txt
+WORKDIR /app
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
+
+RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc -O /usr/bin/mc && \
+    chmod +x /usr/bin/mc
+
+WORKDIR /app
+

@@ -1,0 +1,44 @@
+env: dev
+exp: "ml-pipeline-exp-v0"
+
+# temp working dir in dags
+tmp_volume: /opt/airflow/tmp_run
+tmp_volume_host: /home/catch/bench-mlops/chops/airflow/tmp_run  # 호스트 환경 경로
+
+# imdb trainer
+imdb:
+  desc: "imdb 훈련과 모델 MLFlow 배포"
+  tags: "model-train,dag-imdb-predictor"
+
+  repo: https://{pat}@github.com/cat2oon/tmp-imdb.git
+  branch: main
+  entry: "imdb/main.py"
+  trainer_image: trainer:3.12
+
+  s3:
+    # endpoint: http://localhost:9000 (for 호스트)
+    endpoint: http://host.docker.internal:9000
+    access_key: minio1234
+    secret_key: minio1234
+    bucket: imdb
+    dataset_keys:
+      - "dataset/watch_log.csv"
+
+# disease classifier trainer
+disease:
+  desc: "disease 훈련과 모델 MLFlow 배포"
+  tags: "model-train,dag-disease-classifier"
+
+  repo: https://{pat}@github.com/cat2oon/tmp-imdb.git
+  branch: dp
+  entry: "main.py"
+  trainer_image: trainer:3.12
+
+  s3:
+    endpoint: http://host.docker.internal:9000
+    access_key: minio1234
+    secret_key: minio1234
+    bucket: dpp
+    dataset_keys:
+      - "dataset/train.csv"
+      - "dataset/test.csv"

@@ -1,0 +1,22 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.trainer.txt ./requirements.txt
+
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r ./requirements.txt
+
+# 빌드 arguemtns
+ARG HOST_UID
+ARG HOST_GID
+ARG HOST_USERNAME
+
+# non root 컨테이너로 수행을 하여야 공유 마운트 볼륨에
+# 생성되는 파일들을 다른 컨테이너들이 루트 권한 없이 삭제 가능
+USER root
+RUN groupadd -g ${HOST_GID} ${HOST_USERNAME} && \
+    useradd -u ${HOST_UID} -g ${HOST_GID} -s /bin/bash ${HOST_USERNAME}
+
+USER ${HOST_USERNAME}
+CMD ["/bin/bash"]

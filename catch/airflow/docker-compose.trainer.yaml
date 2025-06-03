@@ -1,0 +1,12 @@
+services:
+  builder:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.trainer
+      args:
+        HOST_UID: ${AIRFLOW_UID}
+        HOST_GID: ${AIRFLOW_GID}
+        HOST_USERNAME: ${HOST_USERNAME}
+    image: trainer:3.12
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

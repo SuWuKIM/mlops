@@ -1,0 +1,59 @@
+services:
+  mlflow-backend-store:
+    image: postgres:14.0
+    container_name: mlflow-backend-store
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-U", "mlflowuser", "-d", "${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+
+  mlflow-artifact-store:
+    image: minio/minio
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}         # 아이디도 3글자 이상 요구
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD} # 비밀번호 8자 미만이면 실패함
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data/minio --console-address :9001
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://0.0.0.0:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    volumes:
+      - ./minio_data:/data/minio
+
+  mlflow-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow-server
+    container_name: mlflow-server
+    depends_on:
+      mlflow-backend-store:
+        condition: service_healthy
+      mlflow-artifact-store:
+        condition: service_healthy
+    ports:
+      - "8550:5000"
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      MLFLOW_S3_ENDPOINT_URL: http://mlflow-artifact-store:9000
+    command: >
+      /bin/sh -c "
+        mc alias set mlflowminio http://mlflow-artifact-store:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD} &&
+        mc mb mlflowminio/mlflow || true &&
+        mlflow server -h 0.0.0.0 --port 5000
+          --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@mlflow-backend-store/${POSTGRES_DB}
+          --default-artifact-root s3://mlflow/"

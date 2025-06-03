@@ -1,0 +1,20 @@
+FROM apache/airflow:2.9.1
+
+# PIP REQUIREMENTS 설치
+COPY requirements-airflow.txt /requirements.txt
+USER airflow
+RUN pip install --no-cache-dir -r /requirements.txt
+
+# 빌드 arguemtns
+ARG HOST_UID
+ARG HOST_GID
+ARG HOST_USERNAME
+
+# 호스트에서 공유 볼륨 dags 접근 시 읽기 전용되지 않게
+# AIRFLOW_UID를 호스트와 일치시켜 사용하지만 
+# 이 경우 컨테이너 내부 접근 시 다음 설정 필요
+USER root
+RUN groupadd -g ${HOST_GID} ${HOST_USERNAME} && \
+    useradd -u ${HOST_UID} -g ${HOST_GID} -m -s /bin/bash ${HOST_USERNAME}
+
+USER airflow

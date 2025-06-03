@@ -1,0 +1,21 @@
+# ML Project
+project_name: disease_prediction
+
+# Serving Model Metadata
+serving:
+  model_name: disease_prediction
+  labels:
+    framework: mlflow
+    dataset: kaggle-base
+    task: classification
+
+mlflow:
+  model_uri: "runs:/d5899ca505ee411fa20ecd8f3197cae3/disease_rf_model"
+  tracking_uri: http://localhost:8550
+
+service:
+  resources:
+    cpu: "2"
+    memory: "2Gi"
+  traffic:
+    timeout: 10
