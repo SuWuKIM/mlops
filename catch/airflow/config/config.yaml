@@ -29,9 +29,9 @@ disease:
   desc: "disease 훈련과 모델 MLFlow 배포"
   tags: "model-train,dag-disease-classifier"
 
-  repo: https://{pat}@github.com/cat2oon/tmp-imdb.git
-  branch: dp
-  entry: "main.py"
+  repo: https://github.com/SuWuKIM/mlops.git
+  branch: main
+  entry: "train_disease.py"
   trainer_image: trainer:3.12
 
   s3:
