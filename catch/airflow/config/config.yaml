@@ -35,10 +35,10 @@ disease:
   trainer_image: trainer:3.12
 
   s3:
-    endpoint: http://host.docker.internal:9000
+    endpoint: http://localhost:9000
     access_key: minio1234
     secret_key: minio1234
-    bucket: dpp
+    bucket: mlflow
     dataset_keys:
       - "dataset/train.csv"
       - "dataset/test.csv"
