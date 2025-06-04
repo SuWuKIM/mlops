@@ -31,11 +31,11 @@ disease:
 
   repo: https://github.com/SuWuKIM/mlops.git
   branch: main
-  entry: "train_disease.py"
+  entry: "main.py"
   trainer_image: trainer:3.12
 
   s3:
-    endpoint: http://localhost:9000
+    endpoint: http://host.docker.internal:9000
     access_key: minio1234
     secret_key: minio1234
     bucket: mlflow
