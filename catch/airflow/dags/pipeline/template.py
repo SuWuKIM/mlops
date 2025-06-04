@@ -67,13 +67,15 @@ class TrainerDagTemplate:
 
     def train_task(self):
         cmd = f"python /tmp_run/code/{self.model_conf.entry}"
+        #cmd = f"echo hello"
         trainer = DockerOperator(
             task_id=f"train-{self.key}-in-docker",
             command=cmd,
             image=self.model_conf.trainer_image,
             network_mode="host",  # localhost 바로 접근 가능
             auto_remove="success",
-            docker_url="unix://var/run/docker.sock",
+            docker_url="tcp://host.docker.internal:2375",
+            #docker_url="unix://var/run/docker.sock",
             mount_tmp_dir=False,
             mounts=[
                 Mount(source=self.cfg.tmp_volume_host, target="/tmp_run", type="bind")

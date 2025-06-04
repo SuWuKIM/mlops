@@ -13,9 +13,9 @@ COPY requirements.airflow.txt ./requirements.txt
 RUN pip install --no-cache-dir -r ./requirements.txt
 
 # 빌드 arguemtns
-ARG HOST_UID
-ARG HOST_GID
-ARG HOST_USERNAME
+ARG HOST_UID=1000
+ARG HOST_GID=1000
+ARG HOST_USERNAME=trainer
 
 # 호스트에서 공유 볼륨 dags 접근 시 '읽기 전용' 되지 않게
 # AIRFLOW_UID를 호스트와 일치시켜 사용하지만
